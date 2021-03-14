@@ -4,7 +4,6 @@ Go Program for Hangman
 TaskList:
 - Make game graphical
 - add actual hangman
-- sort linked list
 - error checking for user entered response
 - check to see if tree is forming correctly
 - Once game works, implement better algorithm to pick random word from insert tree
@@ -15,37 +14,89 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
-	//"image/draw"
 )
 
 var guessed = make(map[int]bool)
 var wrong int = 0
 var numGuessed int = 0
-var myLinkedlist = list.New()
 var t Tree
 
-func printLinkedList() {
-	for element := myLinkedlist.Front(); element != nil; element = element.Next() {
-		fmt.Print(element.Value)
+type node struct {
+	value string
+	next  *node
+}
+
+type linkedList struct {
+	head *node
+}
+
+func (list linkedList) printLinkedList() {
+	for list.head != nil {
+		fmt.Print(list.head.value)
+		fmt.Print(" ")
+		list.head = list.head.next
+	}
+	fmt.Println()
+}
+
+func (list *linkedList) insertLetter(letter string) {
+	new := &node{value: letter}
+	current := list.head
+	if list.head == nil {
+		list.head = new
+	} else if letter < list.head.value {
+		new.next = list.head
+		list.head = new
+	} else {
+		for current.next != nil && letter > current.next.value {
+			current = current.next
+		}
+		new.next = current.next
+		current.next = new
 	}
 }
 
-func CheckAndAddLetter(newLetter string) bool {
-	for element := myLinkedlist.Front(); element != nil; element = element.Next() {
-		if newLetter == element.Value {
+func (list *linkedList) checkLetter(letter string, word string) {
+	if !(list.duplicateLetter(letter)) {
+		fmt.Println("You have already guessed this letter, try a new one.")
+	} else {
+
+		list.insertLetter(letter)
+
+		inWord := false
+		for i := 0; i < len(word); i++ {
+			if strings.ToLower(letter) == strings.ToLower(string(word[i])) {
+				guessed[i] = true
+				numGuessed++
+				inWord = true
+			}
+		}
+
+		if !inWord {
+			wrong++
+		}
+	}
+	fmt.Print("# right is: ")
+	fmt.Println(numGuessed)
+	fmt.Print("# wrong is: ")
+	fmt.Println(wrong)
+}
+
+func (list *linkedList) duplicateLetter(letter string) bool {
+	if list.head == nil {
+		return true
+	}
+	for current := list.head; current != nil; current = current.next {
+		if letter == current.value {
 			return false
 		}
 	}
-	// change this to add in sorted order
-	myLinkedlist.PushFront(newLetter)
-	fmt.Println("Guessed Letter Added Successfully to the Linked List")
 	return true
 }
 
@@ -85,34 +136,6 @@ func pickRandomWordFromDict() string {
 	}
 	return randomWord
 
-}
-
-func checkLetter(letter string, word string) {
-	if !(CheckAndAddLetter(letter)) {
-		fmt.Println("You have already guessed this letter, try a new one.")
-	} else {
-		inWord := false
-		for i := 0; i < len(word); i++ {
-			//fmt.Println("Letter you guessed is: " + strings.ToLower(letter))
-			//fmt.Println("The current letter of the word is: " + string(word[i]))
-			if strings.ToLower(letter) == strings.ToLower(string(word[i])) {
-				guessed[i] = true
-				numGuessed++
-				inWord = true
-			}
-		}
-
-		if !inWord {
-			wrong++
-		}
-	}
-	fmt.Print("# right is: ")
-	fmt.Println(numGuessed)
-	fmt.Print("# wrong is: ")
-	fmt.Println(wrong)
-
-	//fmt.Print("current map of letters guessed in word: ")
-	//fmt.Println(guessed)
 }
 
 type Tree struct {
@@ -209,6 +232,7 @@ func searchTree(n *Node, word string) bool {
 
 func main() {
 	word := "hello"
+	list := linkedList{}
 	randomWord := pickRandomWordFromDict()
 	fmt.Println("Random word is " + randomWord)
 	dictionaryToBinaryTree("smallDictionary.txt")
@@ -224,18 +248,15 @@ func main() {
 		for i := 0; i < 1; i++ {
 			response = string(response[i])
 		}
-
-		checkLetter(response, word)
-		//fmt.Print("Here are the letters you have already guessed: ")
-		fmt.Print("LINKED LIST CONTAINS: ")
-		printLinkedList()
+		list.checkLetter(response, word)
+		fmt.Print("Here are the letters you have already guessed: ")
+		list.printLinkedList()
 		fmt.Println()
 
 	}
 	if wrong > 6 {
 		fmt.Println("Sorry, you have exceeded the maximum guesses. You Lost!")
-	}
-	if wrong < 6 && numGuessed == len(word) {
+	} else if numGuessed == len(word) {
 		fmt.Println("You have successfully guessed all the letters. You Won!")
 		displayHyphen(word)
 	}
@@ -251,4 +272,10 @@ https://zetcode.com/golang/readfile/
 https://hackernoon.com/how-to-select-a-random-node-from-a-tree-with-equal-probability-childhood-moments-with-father-today-0ip32dp
 
 https://www.socketloop.com/tutorials/golang-convert-uint-value-to-string-type#:~:text=You%20have%20an%20uint%20value,the%20uint64%20value%20to%20string.
+
+https://tutorialedge.net/golang/go-linked-lists-tutorial/
+
+for all the list stuff:
+https://dev.to/divshekhar/golang-linked-list-data-structure-h20
+
 */
