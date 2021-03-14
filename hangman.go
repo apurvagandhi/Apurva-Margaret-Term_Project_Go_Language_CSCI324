@@ -2,12 +2,13 @@
 Go Program for Hangman
 
 TaskList:
-1. Create a function to reverse a string
-2. Insert words into the binary tree by comparing reversed strings
-3. Using Algorithm, randomly select a node from binary search tree
-4. Make game graphical
-5. numGuessed Needs to be fixed if letter guessed more than once
-6. Delete \n from entered response.
+- Make game graphical
+- add actual hangman
+- sort linked list
+- error checking for user entered response
+- check to see if tree is forming correctly
+- Once game works, implement better algorithm to pick random word from insert tree
+
 */
 
 package main
@@ -22,7 +23,6 @@ import (
 	"strings"
 	"time"
 	//"image/draw"
-
 )
 
 var guessed = make(map[int]bool)
@@ -31,24 +31,22 @@ var numGuessed int = 0
 var myLinkedlist = list.New()
 var t Tree
 
-
 func printLinkedList() {
 	for element := myLinkedlist.Front(); element != nil; element = element.Next() {
-		if element.Value != "\n" {
-			fmt.Print(element.Value)
-		}
+		fmt.Print(element.Value)
 	}
 }
 
 func CheckAndAddLetter(newLetter string) bool {
 	for element := myLinkedlist.Front(); element != nil; element = element.Next() {
 		if newLetter == element.Value {
-			return true
+			return false
 		}
 	}
+	// change this to add in sorted order
 	myLinkedlist.PushFront(newLetter)
 	fmt.Println("Guessed Letter Added Successfully to the Linked List")
-	return false
+	return true
 }
 
 func displayHyphen(word string) {
@@ -67,21 +65,20 @@ func displayHyphen(word string) {
 		fmt.Print("- ")
 	}
 	fmt.Println()
-	//fmt.Print("Here are the letters you have guessed: ")
-
 }
+
 func pickRandomWordFromDict() string {
-	letters, err := ioutil.ReadFile("smallDictionary.txt")
-	lettersString := string(letters)
-	words := strings.Split(lettersString, "\n")
+	dictionaryWords, err := ioutil.ReadFile("smallDictionary.txt")
+	dictionary := string(dictionaryWords)
+	words := strings.Split(dictionary, "\n")
 	totalWords := len(words) - 1
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
-	randnum := r1.Intn(totalWords)
-	fmt.Print("Random number is ")
-	fmt.Println(randnum)
+	randNum := r1.Intn(totalWords)
+	//fmt.Print("Random number is ")
+	//fmt.Println(randNum)
 
-	randomWord := words[randnum]
+	randomWord := words[randNum]
 
 	if err != nil {
 		fmt.Println(err)
@@ -91,23 +88,14 @@ func pickRandomWordFromDict() string {
 }
 
 func checkLetter(letter string, word string) {
-	checkRepeat := CheckAndAddLetter(letter)
-	if checkRepeat {
-		fmt.Println("You have already entered this guess, try new one")
+	if !(CheckAndAddLetter(letter)) {
+		fmt.Println("You have already guessed this letter, try a new one.")
 	} else {
-
 		inWord := false
 		for i := 0; i < len(word); i++ {
-			fmt.Println("Letter is " + strings.ToLower(letter))
-			fmt.Println("letter of the word is " + string(word[i]) + "\n")
-			//fmt.Println(strings.Compare(strings.ToLower(letter), strings.ToLower(string(word[i])+"\n")))
-			fmt.Print("Letter equals letter of the word? ")
-			fmt.Println(strings.ToLower(letter) == strings.ToLower(string(word[i])+"\n"))
-			
-			if strings.ToLower(letter) == strings.ToLower(string(word[i])+"\n") {
-				//if (strings.Compare(strings.ToLower(letter), strings.ToLower(string(word[i])+"\n"))) == 0 {
-
-				fmt.Println("Check")
+			//fmt.Println("Letter you guessed is: " + strings.ToLower(letter))
+			//fmt.Println("The current letter of the word is: " + string(word[i]))
+			if strings.ToLower(letter) == strings.ToLower(string(word[i])) {
 				guessed[i] = true
 				numGuessed++
 				inWord = true
@@ -118,9 +106,13 @@ func checkLetter(letter string, word string) {
 			wrong++
 		}
 	}
-	fmt.Println("num guessed right, num guessed wrong:")
-	fmt.Println(numGuessed, wrong)
-	fmt.Println(guessed)
+	fmt.Print("# right is: ")
+	fmt.Println(numGuessed)
+	fmt.Print("# wrong is: ")
+	fmt.Println(wrong)
+
+	//fmt.Print("current map of letters guessed in word: ")
+	//fmt.Println(guessed)
 }
 
 type Tree struct {
@@ -144,7 +136,6 @@ func (t *Tree) insert(data string) {
 
 //Node
 func (n *Node) insert(data string) {
-
 	if reverse(data) <= reverse(n.key) {
 		if n.left == nil {
 			n.left = &Node{key: data}
@@ -169,6 +160,7 @@ func printPostOrder(n *Node) {
 		fmt.Println(n.key)
 	}
 }
+
 func reverse(str string) (result string) {
 	for _, l := range str {
 		result = string(l) + result
@@ -223,12 +215,21 @@ func main() {
 	printPostOrder(t.root)
 	for wrong < 6 && numGuessed < len(word) {
 		displayHyphen(word)
+
 		fmt.Print("Please enter a letter: ")
 		reader := bufio.NewReader(os.Stdin)
 		response, _ := reader.ReadString('\n')
+
+		// get just the letter, not the carriage return
+		for i := 0; i < 1; i++ {
+			response = string(response[i])
+		}
+
 		checkLetter(response, word)
-		fmt.Print("So far you entered following guesses: ")
+		//fmt.Print("Here are the letters you have already guessed: ")
+		fmt.Print("LINKED LIST CONTAINS: ")
 		printLinkedList()
+		fmt.Println()
 
 	}
 	if wrong > 6 {
