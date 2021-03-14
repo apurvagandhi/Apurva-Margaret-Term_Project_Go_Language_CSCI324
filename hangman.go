@@ -7,12 +7,6 @@ Go Program for Hangman Game
 Sample execution: go run hangman.go
 *****************************************/
 
-/*TaskList:
-- come up with program ideas
-- try to install the thing
-- HOMEWORK
-*/
-
 package main
 
 import (
@@ -28,7 +22,7 @@ import (
 var guessed = make(map[int]bool)
 var wrong int = 0
 var numGuessed int = 0
-var dict string = "test.txt"
+var dict string = "dictionary.txt"
 
 /* The following structs and functions create and modify our linked list structure,
    which we use to keep track of what letters the user has guessed in alphabetical
@@ -353,23 +347,16 @@ func main() {
 }
 
 /* Sources
-https://www.bogotobogo.com/GoLang/GoLang_Binary_Search_Tree.php
-
-https://flaviocopes.com/golang-data-structure-binary-search-tree/
 
 https://zetcode.com/golang/readfile/
-
-https://hackernoon.com/how-to-select-a-random-node-from-a-tree-with-equal-probability-childhood-moments-with-father-today-0ip32dp
 
 https://www.socketloop.com/tutorials/golang-convert-uint-value-to-string-type#:~:text=You%20have%20an%20uint%20value,the%20uint64%20value%20to%20string.
 
 https://tutorialedge.net/golang/go-linked-lists-tutorial/
 
-for all the list stuff:
+More list stuff:
 https://dev.to/divshekhar/golang-linked-list-data-structure-h20
 
-ascii hangman: https://inventwithpython.com/invent4thed/chapter8.html
-
-Random Node from a Tree Algorithm: https://hackernoon.com/how-to-select-a-random-node-from-a-tree-with-equal-probability-childhood-moments-with-father-today-0ip32dp
+Ascii hangman: https://inventwithpython.com/invent4thed/chapter8.html
 
 */
