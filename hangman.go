@@ -3,7 +3,7 @@ Go Program for Hangman
 
 TaskList:
 - Once game works, implement algorithm to pick random word from insert tree NOT file
-- Allow user to add word to the dictonary (by inserting the word into the binary tree)
+- Allow user to add word to the dictonary (by inserting the word into the binary tree???)
 */
 
 package main
@@ -22,7 +22,11 @@ var guessed = make(map[int]bool)
 var wrong int = 0
 var numGuessed int = 0
 var t Tree
-var dict string = "smallDictionary.txt"
+var dict string = "test.txt"
+
+/* The following structs and functions create and modify our linked list structure,
+   which we use to keep track of what letters the user has guessed in alphabetical
+   order. */
 
 type node struct {
 	value string
@@ -33,6 +37,7 @@ type linkedList struct {
 	head *node
 }
 
+// printLinkedList prints out the list containing every letter the user has guessed
 func (list linkedList) printLinkedList() {
 	for list.head != nil {
 		fmt.Print(list.head.value)
@@ -42,6 +47,7 @@ func (list linkedList) printLinkedList() {
 	fmt.Println()
 }
 
+// insertLetter inserts the user's newest guessed into our linked list in sorted order
 func (list *linkedList) insertLetter(letter string) {
 	new := &node{value: letter}
 	current := list.head
@@ -59,6 +65,12 @@ func (list *linkedList) insertLetter(letter string) {
 	}
 }
 
+/* checkLetter first determines if this letter has been guessed already. If not,
+   it calls insertLetter to place it in the lists and then checks to see if this
+   new guess is a letter (or letters) in our word. Then, it updates the necessary
+   variables accordingly and prints how many letters the user has correctly
+   guessed (which are revealed) and how many incorrect guessed he/she has made.
+*/
 func (list *linkedList) checkLetter(letter string, word string) {
 	if !(list.duplicateLetter(letter)) {
 		fmt.Println("You have already guessed this letter, try a new one.")
@@ -87,6 +99,7 @@ func (list *linkedList) checkLetter(letter string, word string) {
 	fmt.Println()
 }
 
+// duplicateLetter checks if the user's latest guess has already been made.
 func (list *linkedList) duplicateLetter(letter string) bool {
 	if list.head == nil {
 		return true
@@ -99,6 +112,8 @@ func (list *linkedList) duplicateLetter(letter string) bool {
 	return true
 }
 
+// displayHyphen prints out any letters which have been correctly guessed
+// by the user, and the hyphens for each letter in the word
 func displayHyphen(word string) {
 	for j := 0; j < len(word); j++ {
 		if guessed[j] {
@@ -116,6 +131,10 @@ func displayHyphen(word string) {
 	}
 	fmt.Println()
 }
+
+/* The following structs and functions are used to select our random word from the
+   dictionary and to create and store our dictionary into a binary search tree.
+*/
 
 func pickRandomWordFromDict() string {
 	dictionaryWords, err := ioutil.ReadFile(dict)
@@ -147,7 +166,7 @@ type Node struct {
 	right *Node
 }
 
-//Tree
+// Tree creation
 func (t *Tree) insert(data string) {
 	if t.root == nil {
 		t.root = &Node{key: data}
@@ -156,15 +175,17 @@ func (t *Tree) insert(data string) {
 	}
 }
 
-//Node
+// Node creation
 func (n *Node) insert(data string) {
-	if reverse(data) <= reverse(n.key) {
+	if data == n.key {
+		// we dont want to accept this new word
+	} else if reverse(data) < reverse(n.key) {
 		if n.left == nil {
 			n.left = &Node{key: data}
 		} else {
 			n.left.insert(data)
 		}
-	} else { // if greater than bc we dont want to accept the insert if they're equal
+	} else {
 		if n.right == nil {
 			n.right = &Node{key: data}
 		} else {
@@ -173,6 +194,7 @@ func (n *Node) insert(data string) {
 	}
 }
 
+// Prints our binary search tree, used for testing purposes
 func printPostOrder(n *Node) {
 	if n == nil {
 		return
@@ -183,6 +205,7 @@ func printPostOrder(n *Node) {
 	}
 }
 
+// reverse takes in a string and returns the same string except reversed
 func reverse(str string) (result string) {
 	for _, l := range str {
 		result = string(l) + result
@@ -190,45 +213,45 @@ func reverse(str string) (result string) {
 	return
 }
 
+// dictionaryToBinaryTree reads in the dictionary file and produces a BST from it
 func dictionaryToBinaryTree(fileName string) {
 	word, err := os.Open(dict)
-	//if error, prints the error
+	// print if there's an error
 	if err != nil {
 		fmt.Println(err)
 	}
-	//The file descriptor is closed at the end of the main function.
+	// close file descriptor at the end of the main function
 	defer word.Close()
-	// A new scanner is created.
+	// create new scanner, split content by words
 	scanner := bufio.NewScanner(word)
-	//split the content by words.
 	scanner.Split(bufio.ScanWords)
-	//The Scan advances the Scanner to the next token,
-	//which will then be available through the Text function.
-
+	// read each word and insert it into the BST
 	for scanner.Scan() {
 		t.insert(scanner.Text())
-		//fmt.Println("Inserted Successfully")
 	}
-	//Checks for Error in scanning
+	// check for error in scanning
 	scanErr := scanner.Err()
 	if err != nil {
 		fmt.Println(scanErr)
 	}
-
 }
+
+// searchTree returns whether or not a certain word is in the BST
 func searchTree(n *Node, word string) bool {
 	if n == nil {
 		return false
-	}
-	if strings.ToLower(word) < strings.ToLower(n.key) {
+	} else if strings.ToLower(word) < strings.ToLower(n.key) {
 		return searchTree(n.left, word)
-	}
-	if strings.ToLower(word) > strings.ToLower(n.key) {
+	} else if strings.ToLower(word) > strings.ToLower(n.key) {
 		return searchTree(n.right, word)
+	} else {
+		// only alternative is that they must be equal, so return true
+		return true
 	}
-	return true
 }
 
+// drawHangman prints out the body parts of the man on the gallows based on
+// the number of incorrect letter guesses
 func drawHangman(numLost int) {
 	if numLost == 0 {
 		fmt.Printf("  +---+\n")
@@ -303,37 +326,89 @@ func drawHangman(numLost int) {
 	}
 }
 
+func addWordToFile(newWord string) {
+	dictionaryWords, err := ioutil.ReadFile(dict)
+	dictionary := string(dictionaryWords)
+
+	file, err := os.Create(dict)
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err2 := file.WriteString(dictionary)
+	if err2 != nil {
+		fmt.Println(err)
+	}
+	_, err3 := file.WriteString(newWord)
+	if err3 != nil {
+		fmt.Println(err3)
+	}
+	defer file.Close()
+	fmt.Println("Your word has been added to the dictionary.")
+}
+
 func main() {
-	list := linkedList{}
-	randomWord := pickRandomWordFromDict()
-	fmt.Println("Random word is " + randomWord)
-	dictionaryToBinaryTree(dict)
-	for wrong < 6 && numGuessed < len(randomWord) {
-		displayHyphen(randomWord)
-
-		fmt.Print("Please enter a letter: ")
+	keepPlaying := true
+	// loop as long as user wants to continue playing
+	for keepPlaying {
+		// prompt user for what they want to do
+		fmt.Print("Do you want to play a game (P), add a word to the dictionary (A), or quit (Q)?: ")
 		reader := bufio.NewReader(os.Stdin)
-		response, _ := reader.ReadString('\n')
-		if len(response) > 2 {
-			fmt.Println("Sorry, you must enter a single letter.")
-		} else {
-			// get just the letter, not the carriage return
-			response = string(response[0])
-			fmt.Println()
-			list.checkLetter(response, randomWord)
-			fmt.Print("You have guessed the following letters: ")
-			list.printLinkedList()
-			fmt.Println()
+		userChoice, _ := reader.ReadString('\n')
+		userChoice = strings.ToLower(string(userChoice[0]))
+		if len(userChoice) > 1 || !(userChoice == "p" || userChoice == "a" || userChoice == "q") {
+			fmt.Println("Sorry, you've entered an invalid response.")
 		}
-		drawHangman(wrong)
-	}
+		switch userChoice {
+		case "a":
+			// call function to add their word to the dictionary permanently
+			fmt.Println("Please enter the word you wish to include in the dictionary")
+			reader := bufio.NewReader(os.Stdin)
+			userWord, _ := reader.ReadString('\n')
+			addWordToFile(userWord)
+		case "q":
+			// end the game
+			keepPlaying = false
+		case "p":
+			// declare/assign necessary variables for a game and select random word from our dictionary
+			list := linkedList{}
+			randomWord := pickRandomWordFromDict()
+			dictionaryToBinaryTree(dict)
+			numGuessed = 0
+			wrong = 0
+			guessed = make(map[int]bool)
 
-	if wrong > 6 {
-		fmt.Println("Sorry, you've exceeded the maximum guesses. You Lost!")
-	} else if numGuessed == len(randomWord) {
-		fmt.Println("You have successfully guessed all the letters. You Won!")
-		displayHyphen(randomWord)
+			// loop as long as they have not guessed every letter or exceeded
+			// number of allowable incorrect guesses
+			for wrong < 6 && numGuessed < len(randomWord) {
+				displayHyphen(randomWord)
+
+				fmt.Print("Please enter a letter: ")
+				reader := bufio.NewReader(os.Stdin)
+				response, _ := reader.ReadString('\n')
+				if len(response) > 2 {
+					fmt.Println("Sorry, you must enter a single letter.")
+				} else {
+					// get just the letter, not the carriage return
+					response = string(response[0])
+					fmt.Println()
+					list.checkLetter(response, randomWord)
+					fmt.Print("You have guessed the following letters: ")
+					list.printLinkedList()
+					fmt.Println()
+				}
+				drawHangman(wrong)
+				// print whether they won or lost
+				if wrong == 6 {
+					fmt.Println("Sorry, you've exceeded the maximum guesses. You Lost!")
+					fmt.Println("Your word was " + randomWord + ". Better luck next time!")
+				} else if numGuessed == len(randomWord) {
+					fmt.Println("You have successfully guessed all the letters. You Won!")
+					displayHyphen(randomWord)
+				}
+			}
+		}
 	}
+	fmt.Println("Goodbye!")
 }
 
 /* Sources
@@ -353,5 +428,7 @@ for all the list stuff:
 https://dev.to/divshekhar/golang-linked-list-data-structure-h20
 
 ascii hangman: https://inventwithpython.com/invent4thed/chapter8.html
+
+Random Node from a Tree Algorithm: https://hackernoon.com/how-to-select-a-random-node-from-a-tree-with-equal-probability-childhood-moments-with-father-today-0ip32dp
 
 */
