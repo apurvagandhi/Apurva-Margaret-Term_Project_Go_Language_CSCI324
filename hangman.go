@@ -1,9 +1,16 @@
-/* Apurva Gandhi and Margaret Haley
-Go Program for Hangman
+/******************************************
+Names: Apurva Gandhi and Margaret Haley
+Date: 03.15.2021
+Course: CSCI324
+Professor King
+Go Program for Hangman Game
+Sample execution: go run hangman.go
+*****************************************/
 
-TaskList:
-- Once game works, implement algorithm to pick random word from insert tree NOT file
-- Allow user to add word to the dictonary (by inserting the word into the binary tree???)
+/*TaskList:
+- come up with program ideas
+- try to install the thing
+- HOMEWORK
 */
 
 package main
@@ -21,7 +28,6 @@ import (
 var guessed = make(map[int]bool)
 var wrong int = 0
 var numGuessed int = 0
-var t Tree
 var dict string = "test.txt"
 
 /* The following structs and functions create and modify our linked list structure,
@@ -69,16 +75,13 @@ func (list *linkedList) insertLetter(letter string) {
    it calls insertLetter to place it in the lists and then checks to see if this
    new guess is a letter (or letters) in our word. Then, it updates the necessary
    variables accordingly and prints how many letters the user has correctly
-   guessed (which are revealed) and how many incorrect guessed he/she has made.
-*/
+   guessed (which are revealed) and how many incorrect guesses he/she has made. */
 func (list *linkedList) checkLetter(letter string, word string) {
 	if !(list.duplicateLetter(letter)) {
 		fmt.Println("You have already guessed this letter, try a new one.")
 		fmt.Println()
 	} else {
-
 		list.insertLetter(letter)
-
 		inWord := false
 		for i := 0; i < len(word); i++ {
 			if strings.ToLower(letter) == strings.ToLower(string(word[i])) {
@@ -87,7 +90,6 @@ func (list *linkedList) checkLetter(letter string, word string) {
 				inWord = true
 			}
 		}
-
 		if !inWord {
 			wrong++
 		}
@@ -117,25 +119,25 @@ func (list *linkedList) duplicateLetter(letter string) bool {
 func displayHyphen(word string) {
 	for j := 0; j < len(word); j++ {
 		if guessed[j] {
-			// print the letter
+			// print the letter if they've guessed it
 			fmt.Print(string(word[j]))
 			fmt.Print(" ")
 		} else {
-			// print blank space
+			// print blank space otherwise
 			fmt.Print("  ")
 		}
 	}
 	fmt.Println()
+	// print out dashes for the number of letters in the word
 	for i := 0; i < len(word); i++ {
 		fmt.Print("- ")
 	}
 	fmt.Println()
 }
 
-/* The following structs and functions are used to select our random word from the
-   dictionary and to create and store our dictionary into a binary search tree.
-*/
-
+/* pickRandomWordFromDict accesses the dictionary file, generates a random
+   seed number based off the time of the day, and then selects a random word
+   using that seed number and the number of words in the dictionary */
 func pickRandomWordFromDict() string {
 	dictionaryWords, err := ioutil.ReadFile(dict)
 	dictionary := string(dictionaryWords)
@@ -144,110 +146,12 @@ func pickRandomWordFromDict() string {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	randNum := r1.Intn(totalWords)
-	//fmt.Print("Random number is ")
-	//fmt.Println(randNum)
-
 	randomWord := words[randNum]
-
+	// if theres an error, print it
 	if err != nil {
 		fmt.Println(err)
 	}
 	return randomWord
-
-}
-
-type Tree struct {
-	root *Node
-}
-
-type Node struct {
-	key   string
-	left  *Node
-	right *Node
-}
-
-// Tree creation
-func (t *Tree) insert(data string) {
-	if t.root == nil {
-		t.root = &Node{key: data}
-	} else {
-		t.root.insert(data)
-	}
-}
-
-// Node creation
-func (n *Node) insert(data string) {
-	if data == n.key {
-		// we dont want to accept this new word
-	} else if reverse(data) < reverse(n.key) {
-		if n.left == nil {
-			n.left = &Node{key: data}
-		} else {
-			n.left.insert(data)
-		}
-	} else {
-		if n.right == nil {
-			n.right = &Node{key: data}
-		} else {
-			n.right.insert(data)
-		}
-	}
-}
-
-// Prints our binary search tree, used for testing purposes
-func printPostOrder(n *Node) {
-	if n == nil {
-		return
-	} else {
-		printPostOrder(n.left)
-		printPostOrder(n.right)
-		fmt.Println(n.key)
-	}
-}
-
-// reverse takes in a string and returns the same string except reversed
-func reverse(str string) (result string) {
-	for _, l := range str {
-		result = string(l) + result
-	}
-	return
-}
-
-// dictionaryToBinaryTree reads in the dictionary file and produces a BST from it
-func dictionaryToBinaryTree(fileName string) {
-	word, err := os.Open(dict)
-	// print if there's an error
-	if err != nil {
-		fmt.Println(err)
-	}
-	// close file descriptor at the end of the main function
-	defer word.Close()
-	// create new scanner, split content by words
-	scanner := bufio.NewScanner(word)
-	scanner.Split(bufio.ScanWords)
-	// read each word and insert it into the BST
-	for scanner.Scan() {
-		t.insert(scanner.Text())
-	}
-	// check for error in scanning
-	scanErr := scanner.Err()
-	if err != nil {
-		fmt.Println(scanErr)
-	}
-}
-
-// searchTree returns whether or not a certain word is in the BST
-func searchTree(n *Node, word string) bool {
-	if n == nil {
-		return false
-	} else if strings.ToLower(word) < strings.ToLower(n.key) {
-		return searchTree(n.left, word)
-	} else if strings.ToLower(word) > strings.ToLower(n.key) {
-		return searchTree(n.right, word)
-	} else {
-		// only alternative is that they must be equal, so return true
-		return true
-	}
 }
 
 // drawHangman prints out the body parts of the man on the gallows based on
@@ -326,24 +230,62 @@ func drawHangman(numLost int) {
 	}
 }
 
+// addWordToFile permanently adds a new word to the dictionary file if that word
+// does not already exist in the file
 func addWordToFile(newWord string) {
-	dictionaryWords, err := ioutil.ReadFile(dict)
-	dictionary := string(dictionaryWords)
+	var justWord string
+	// grab just the word to add, without the newline
+	for i := 0; i < len(newWord)-1; i++ {
+		justWord += string(newWord[i])
+	}
+	// check if this word is already in the dictionary
+	if duplicateWordInFile(justWord) == true {
+		fmt.Println("Sorry, this word already exists in the dictionary")
+	} else {
+		// if the word isn't already there, add it permanently to the file
+		dictionaryWords, err := ioutil.ReadFile(dict)
+		dictionary := string(dictionaryWords)
+		file, err := os.Create(dict)
+		if err != nil {
+			fmt.Println(err)
+		}
+		_, err2 := file.WriteString(dictionary)
+		if err2 != nil {
+			fmt.Println(err)
+		}
+		_, err3 := file.WriteString(newWord)
+		if err3 != nil {
+			fmt.Println(err3)
+		}
+		defer file.Close()
+		fmt.Println("Your word has been added to the dictionary.")
+	}
+}
 
-	file, err := os.Create(dict)
+// duplicateWordInFile checks to see if the new word to add is already in the file
+func duplicateWordInFile(newWord string) bool {
+	word, err := os.Open(dict)
+	// print if there's an error
 	if err != nil {
 		fmt.Println(err)
 	}
-	_, err2 := file.WriteString(dictionary)
-	if err2 != nil {
-		fmt.Println(err)
+	// close file descriptor at the end of the main function
+	defer word.Close()
+	// create new scanner, split content by words
+	scanner := bufio.NewScanner(word)
+	scanner.Split(bufio.ScanWords)
+	// read each word and insert it into the BST
+	for scanner.Scan() {
+		if strings.ToLower(scanner.Text()) == strings.ToLower(newWord) {
+			return true
+		}
 	}
-	_, err3 := file.WriteString(newWord)
-	if err3 != nil {
-		fmt.Println(err3)
+	// check for error in scanning
+	scanErr := scanner.Err()
+	if scanErr != nil {
+		fmt.Println(scanErr)
 	}
-	defer file.Close()
-	fmt.Println("Your word has been added to the dictionary.")
+	return false
 }
 
 func main() {
@@ -372,7 +314,6 @@ func main() {
 			// declare/assign necessary variables for a game and select random word from our dictionary
 			list := linkedList{}
 			randomWord := pickRandomWordFromDict()
-			dictionaryToBinaryTree(dict)
 			numGuessed = 0
 			wrong = 0
 			guessed = make(map[int]bool)
