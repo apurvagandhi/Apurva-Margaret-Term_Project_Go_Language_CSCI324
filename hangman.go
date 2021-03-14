@@ -2,12 +2,8 @@
 Go Program for Hangman
 
 TaskList:
-- Make game graphical
-- add actual hangman
-- error checking for user entered response
-- check to see if tree is forming correctly
-- Once game works, implement better algorithm to pick random word from insert tree
-
+- Once game works, implement algorithm to pick random word from insert tree NOT file
+- Allow user to add word to the dictonary (by inserting the word into the binary tree)
 */
 
 package main
@@ -26,6 +22,7 @@ var guessed = make(map[int]bool)
 var wrong int = 0
 var numGuessed int = 0
 var t Tree
+var dict string = "smallDictionary.txt"
 
 type node struct {
 	value string
@@ -65,6 +62,7 @@ func (list *linkedList) insertLetter(letter string) {
 func (list *linkedList) checkLetter(letter string, word string) {
 	if !(list.duplicateLetter(letter)) {
 		fmt.Println("You have already guessed this letter, try a new one.")
+		fmt.Println()
 	} else {
 
 		list.insertLetter(letter)
@@ -82,10 +80,11 @@ func (list *linkedList) checkLetter(letter string, word string) {
 			wrong++
 		}
 	}
-	fmt.Print("# right is: ")
+	fmt.Print("Number of letters guessed: ")
 	fmt.Println(numGuessed)
-	fmt.Print("# wrong is: ")
+	fmt.Print("Number of incorrect guesses: ")
 	fmt.Println(wrong)
+	fmt.Println()
 }
 
 func (list *linkedList) duplicateLetter(letter string) bool {
@@ -119,7 +118,7 @@ func displayHyphen(word string) {
 }
 
 func pickRandomWordFromDict() string {
-	dictionaryWords, err := ioutil.ReadFile("smallDictionary.txt")
+	dictionaryWords, err := ioutil.ReadFile(dict)
 	dictionary := string(dictionaryWords)
 	words := strings.Split(dictionary, "\n")
 	totalWords := len(words) - 1
@@ -192,7 +191,7 @@ func reverse(str string) (result string) {
 }
 
 func dictionaryToBinaryTree(fileName string) {
-	word, err := os.Open("smallDictionary.txt")
+	word, err := os.Open(dict)
 	//if error, prints the error
 	if err != nil {
 		fmt.Println(err)
@@ -230,35 +229,110 @@ func searchTree(n *Node, word string) bool {
 	return true
 }
 
+func drawHangman(numLost int) {
+	if numLost == 0 {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("========\n")
+	} else if numLost == 1 {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  O   |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("========\n")
+	} else if numLost == 2 {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  O   |\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("========\n")
+	} else if numLost == 3 {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  O   |\n")
+		fmt.Printf(" /|   |\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("========\n")
+	} else if numLost == 4 {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  O   |\n")
+		fmt.Printf(" /|\\  |\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("========\n")
+	} else if numLost == 5 {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  O   |\n")
+		fmt.Printf(" /|\\  |\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf(" /    |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("========\n")
+	} else {
+		fmt.Printf("  +---+\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf("  O   |\n")
+		fmt.Printf(" /|\\  |\n")
+		fmt.Printf("  |   |\n")
+		fmt.Printf(" / \\  |\n")
+		fmt.Printf("      |\n")
+		fmt.Printf("R.I.P |     You Lose!\n")
+		fmt.Printf("========\n")
+	}
+}
+
 func main() {
-	word := "hello"
 	list := linkedList{}
 	randomWord := pickRandomWordFromDict()
 	fmt.Println("Random word is " + randomWord)
-	dictionaryToBinaryTree("smallDictionary.txt")
-	printPostOrder(t.root)
-	for wrong < 6 && numGuessed < len(word) {
-		displayHyphen(word)
+	dictionaryToBinaryTree(dict)
+	for wrong < 6 && numGuessed < len(randomWord) {
+		displayHyphen(randomWord)
 
 		fmt.Print("Please enter a letter: ")
 		reader := bufio.NewReader(os.Stdin)
 		response, _ := reader.ReadString('\n')
-
-		// get just the letter, not the carriage return
-		for i := 0; i < 1; i++ {
-			response = string(response[i])
+		if len(response) > 2 {
+			fmt.Println("Sorry, you must enter a single letter.")
+		} else {
+			// get just the letter, not the carriage return
+			response = string(response[0])
+			fmt.Println()
+			list.checkLetter(response, randomWord)
+			fmt.Print("You have guessed the following letters: ")
+			list.printLinkedList()
+			fmt.Println()
 		}
-		list.checkLetter(response, word)
-		fmt.Print("Here are the letters you have already guessed: ")
-		list.printLinkedList()
-		fmt.Println()
-
+		drawHangman(wrong)
 	}
+
 	if wrong > 6 {
-		fmt.Println("Sorry, you have exceeded the maximum guesses. You Lost!")
-	} else if numGuessed == len(word) {
+		fmt.Println("Sorry, you've exceeded the maximum guesses. You Lost!")
+	} else if numGuessed == len(randomWord) {
 		fmt.Println("You have successfully guessed all the letters. You Won!")
-		displayHyphen(word)
+		displayHyphen(randomWord)
 	}
 }
 
@@ -277,5 +351,7 @@ https://tutorialedge.net/golang/go-linked-lists-tutorial/
 
 for all the list stuff:
 https://dev.to/divshekhar/golang-linked-list-data-structure-h20
+
+ascii hangman: https://inventwithpython.com/invent4thed/chapter8.html
 
 */
