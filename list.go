@@ -6,7 +6,11 @@ import (
 	"fmt"
     "os"
 )
-)
+else if string(word[j]) == "%" {
+			guessed[j] = true
+			fmt.Print(string(word[j]))
+			fmt.Print(" ")
+		}
 
 /*
 type node struct {

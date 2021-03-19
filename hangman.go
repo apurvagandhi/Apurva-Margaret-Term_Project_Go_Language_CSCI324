@@ -12,17 +12,16 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
-	"math/rand"
 	"os"
 	"strings"
-	"time"
+	"unicode"
 )
 
 var guessed = make(map[int]bool)
 var wrong int = 0
 var numGuessed int = 0
 var dict string = "dictionary.txt"
+var mapping = make(map[string]bool)
 
 /* The following structs and functions create and modify our linked list structure,
    which we use to keep track of what letters the user has guessed in alphabetical
@@ -112,10 +111,18 @@ func (list *linkedList) duplicateLetter(letter string) bool {
 // by the user, and the hyphens for each letter in the word
 func displayHyphen(word string) {
 	for j := 0; j < len(word); j++ {
+		currLetter := string(word[j])
+		runeLetter := []rune(currLetter)
 		if guessed[j] {
 			// print the letter if they've guessed it
-			fmt.Print(string(word[j]))
+			fmt.Print(currLetter)
 			fmt.Print(" ")
+		} else if !unicode.IsLetter(runeLetter[0]) {
+			// if this letter is a special char, print it
+			guessed[j] = true
+			fmt.Print(currLetter)
+			fmt.Print(" ")
+			numGuessed++
 		} else {
 			// print blank space otherwise
 			fmt.Print("  ")
@@ -129,23 +136,26 @@ func displayHyphen(word string) {
 	fmt.Println()
 }
 
-/* pickRandomWordFromDict accesses the dictionary file, generates a random
-   seed number based off the time of the day, and then selects a random word
-   using that seed number and the number of words in the dictionary */
-func pickRandomWordFromDict() string {
-	dictionaryWords, err := ioutil.ReadFile(dict)
-	dictionary := string(dictionaryWords)
-	words := strings.Split(dictionary, "\n")
-	totalWords := len(words) - 1
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
-	randNum := r1.Intn(totalWords)
-	randomWord := words[randNum]
-	// if theres an error, print it
-	if err != nil {
-		fmt.Println(err)
+// adds the words from dictionary to the map
+func addMap() {
+	file, _ := os.Open(dict)
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		mapping[scanner.Text()] = true
 	}
-	return randomWord
+}
+
+/* pickRandom() picks a random word from dictionary map
+    by iterating through the map and breaking out right
+	away. Iteration of maps are designed to return the
+	values in a different order every time */
+func pickRandom() string {
+	for key, _ := range mapping {
+		return key
+		break
+	}
+	return ""
 }
 
 // drawHangman prints out the body parts of the man on the gallows based on
@@ -224,8 +234,8 @@ func drawHangman(numLost int) {
 	}
 }
 
-// addWordToFile permanently adds a new word to the dictionary file if that word
-// does not already exist in the file
+// addWordToFile() permanently adds a new word to the dictionary file
+// and to the map, only if that word does not already exist in the map
 func addWordToFile(newWord string) {
 	var justWord string
 	// grab just the word to add, without the newline
@@ -233,57 +243,40 @@ func addWordToFile(newWord string) {
 		justWord += string(newWord[i])
 	}
 	// check if this word is already in the dictionary
-	if duplicateWordInFile(justWord) == true {
+	if checkDup(justWord) == true {
 		fmt.Println("Sorry, this word already exists in the dictionary")
 	} else {
-		// if the word isn't already there, add it permanently to the file
-		dictionaryWords, err := ioutil.ReadFile(dict)
-		dictionary := string(dictionaryWords)
+		// add new word to the map
+		mapping[justWord] = true
+
+		//Creates a new file
 		file, err := os.Create(dict)
 		if err != nil {
 			fmt.Println(err)
 		}
-		_, err2 := file.WriteString(dictionary)
-		if err2 != nil {
-			fmt.Println(err)
-		}
-		_, err3 := file.WriteString(newWord)
-		if err3 != nil {
-			fmt.Println(err3)
+
+		//adds all the words to the file from map
+		for key, _ := range mapping {
+			_, err := file.WriteString(key + "\n")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 		defer file.Close()
 		fmt.Println("Your word has been added to the dictionary.")
 	}
 }
 
-// duplicateWordInFile checks to see if the new word to add is already in the file
-func duplicateWordInFile(newWord string) bool {
-	word, err := os.Open(dict)
-	// print if there's an error
-	if err != nil {
-		fmt.Println(err)
-	}
-	// close file descriptor at the end of the main function
-	defer word.Close()
-	// create new scanner, split content by words
-	scanner := bufio.NewScanner(word)
-	scanner.Split(bufio.ScanWords)
-	// read each word and insert it into the BST
-	for scanner.Scan() {
-		if strings.ToLower(scanner.Text()) == strings.ToLower(newWord) {
-			return true
-		}
-	}
-	// check for error in scanning
-	scanErr := scanner.Err()
-	if scanErr != nil {
-		fmt.Println(scanErr)
-	}
-	return false
+// checkDup checks to see if the new word to add is already in the map, returns true
+// if the word exists in the map, false otherwise
+func checkDup(newWord string) bool {
+	_, found := mapping[newWord]
+	return found
 }
 
 func main() {
 	keepPlaying := true
+	addMap()
 	// loop as long as user wants to continue playing
 	for keepPlaying {
 		// prompt user for what they want to do
@@ -307,7 +300,7 @@ func main() {
 		case "p":
 			// declare/assign necessary variables for a game and select random word from our dictionary
 			list := linkedList{}
-			randomWord := pickRandomWordFromDict()
+			randomWord := pickRandom()
 			numGuessed = 0
 			wrong = 0
 			guessed = make(map[int]bool)
@@ -359,4 +352,8 @@ https://dev.to/divshekhar/golang-linked-list-data-structure-h20
 
 Ascii hangman: https://inventwithpython.com/invent4thed/chapter8.html
 
+using runes: https://www.geeksforgeeks.org/check-if-the-rune-is-a-letter-or-not-in-golang/
+https://appdividend.com/2020/03/12/golang-how-to-convert-string-to-rune-in-go-example/
+
+Hash map in Go: https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics
 */
