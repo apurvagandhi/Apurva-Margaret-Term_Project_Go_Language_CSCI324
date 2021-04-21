@@ -17,6 +17,27 @@ import (
 	"os"
 )
 
+type circle struct {
+	radius int
+	center image.Point
+}
+
+func (c *circle) ColorModel() color.Model {
+	return color.AlphaModel
+}
+
+func (c *circle) Bounds() image.Rectangle {
+	return image.Rect(c.center.X-c.radius, c.center.Y-c.radius, c.center.X+c.radius, c.center.Y+c.radius)
+}
+
+func (c *circle) At(x, y int) color.Color {
+	xx, yy, rr := float64(x-c.center.X)+0.5, float64(y-c.center.Y)+0.5, float64(c.radius)
+	if xx*xx+yy*yy < rr*rr {
+		return color.Alpha{255}
+	}
+	return color.Alpha{0}
+}
+
 func main() {
 	// input an image
 	picture1, err := os.Open("covid2.png")
@@ -38,47 +59,19 @@ func main() {
 	//fmt.Println("bounds are: ", bounds)
 
 	// initialize new image to all black
-	back := image.NewRGBA(image.Rect(0, 0, 640, 480))
-	black := color.RGBA{0, 0, 0, 0}
-	draw.Draw(back, back.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
+	background := image.NewRGBA(image.Rect(0, 0, 640, 480))
+	black := color.RGBA{0, 0, 0, 255}
+	draw.Draw(background, background.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
 
-	/*
 	// paste on background
-	sr := bounds
-	dp := image.Point{0, 0}
+	//sr := bounds
+	//dp := image.Point{50, 50}
 	// converting source rectangle into destination's coordinates
-	collage := image.Rectangle{dp, dp.Add(sr.Size())}
-	draw.Draw(back, collage, theImage, sr.Min, draw.Src)
-	*/
+	//collage := image.Rectangle{dp, dp.Add(sr.Size())}
+	//draw.Draw(background, collage, theImage, sr.Min, draw.Src)
 
-	type circle struct {
-		r int
-		center image.Point
-	}
-	/*
-	func (c *circle) ColorModel() color.Model {
-		return color.AlphaModel
-	}
-	*/
-
-	func (c *circle) Bounds() image.Rectangle {
-		return image.Rect(c.center.X-c.r, c.center.Y-c.r, c.center.X+c.r, c.center.Y+c.r)
-	}
-	
-	func (c *circle) At(x, y int) color.Color {
-		xx, yy, rr := float64(x-c.center.X)+0.5, float64(y-c.center.Y)+0.5, float64(c.r)
-		if xx*xx+yy*yy < rr*rr {
-			return color.Alpha{255}
-		}
-		return color.Alpha{0}
-	}
-	
-	thiscircle := circle{}
-	
-	draw.DrawMask(back, back.Bounds(), theImage, image.ZP, &circle{center, r}, image.ZP, draw.Over)
-
-
-
+	//Paste on cropped background circle
+	draw.DrawMask(background, background.Bounds(), theImage, image.ZP, &circle{100, image.Point{100, 100}}, image.ZP, draw.Over)
 
 	/*
 		func Width(i image.Image) int {
@@ -88,12 +81,7 @@ func main() {
 			return i.Bounds().Max.Y — i.Bounds().Min.Y
 		  }
 
-		func (bgImg *MyImage) drawRaw(innerImg image.Image, sp image.Point, width uint, height uint) {
-			resizedImg := resize.Resize(width, height, innerImg,  resize.Lanczos3)
-			w := int(Width(resizedImg))
-			h := int(Height(resizedImg))
-			draw.Draw(bgImg, image.Rectangle{sp, image.Point{sp.X + w, sp.Y + h}}, resizedImg, image.ZP, draw.Src)
-		}*/
+	*/
 
 	// output the image into a file named output
 	out, err := os.Create("output.png")
@@ -102,7 +90,7 @@ func main() {
 	}
 	defer out.Close()
 
-	err = png.Encode(out, back)
+	err = png.Encode(out, background)
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
