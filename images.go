@@ -67,7 +67,6 @@ func main() {
 
 	// Get names of images from user
 	image_names := getNames()
-	fmt.Println(image_names)
 
 	// Start a timer
 	starting := time.Now()
@@ -91,13 +90,6 @@ func main() {
 		if err != nil {
 			fmt.Println("Sadly, an error has occured with this image: ", err)
 		}
-
-		/*
-			// Convert to RGBA
-			bounds := theImage.Bounds()
-			m := image.NewRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
-			draw.Draw(m, m.Bounds(), theImage, bounds.Min, draw.Src)
-		*/
 
 		// Calculate the top left and bottom right of the mini-square we're pasting to
 		var sp image.Point
@@ -134,10 +126,3 @@ func main() {
 	fmt.Printf("Making your collage took %s", totaltime)
 	fmt.Println()
 }
-
-// paste on background
-//sr := bounds
-//dp := image.Point{50, 50}
-// converting source rectangle into destination's coordinates
-//collage := image.Rectangle{dp, dp.Add(sr.Size())}
-//draw.Draw(background, collage, theImage, sr.Min, draw.Src)
