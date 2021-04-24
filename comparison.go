@@ -17,7 +17,6 @@ import (
 	"image/png"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -45,8 +44,6 @@ func (c *circle) At(x, y int) color.Color {
 // initialize vars to creat black background
 var background = image.NewRGBA(image.Rect(0, 0, 480, 480))
 var black = color.RGBA{0, 0, 0, 255}
-var place = 0
-var locking sync.Mutex
 
 // initialize array that will contain our four images
 var ourImages []image.Image
@@ -93,9 +90,7 @@ func getCoords(i int) (image.Point, image.Point) {
 	return start, end
 }
 
-func readImage(file_name string, imageChannel chan image.Image, i int, wg *sync.WaitGroup) {
-	// Once this function finishes, notify the waitgroup that it's finished
-	defer wg.Done()
+func readImage(file_name string, i int) image.Image {
 
 	// Input the image
 	fmt.Println("Starting to read image: ", i)
@@ -103,6 +98,7 @@ func readImage(file_name string, imageChannel chan image.Image, i int, wg *sync.
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
+
 	// Close the connection when we're done
 	defer picture.Close()
 
@@ -111,47 +107,38 @@ func readImage(file_name string, imageChannel chan image.Image, i int, wg *sync.
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
-	// Place the image in the channel
-	imageChannel <- theImage
+	return theImage
 }
 
-func drawOneImage(sp image.Point, ep image.Point, theImage image.Image, i int, name string, wg *sync.WaitGroup) {
-	// Once this function finishes, notify the waitgroup that it's finished
-	defer wg.Done()
+func drawOneImage(sp image.Point, ep image.Point, theImage image.Image, i int) {
 
-	fmt.Println("Editing image #", i, ", which is called ", name)
-	editOneImage(sp, ep)
-	// Draw the cropped image on the background
 	fmt.Println("Starting to draw image: ", i)
+
+	// Draw the cropped image on the background
 	draw.DrawMask(background, image.Rectangle{sp, ep}, theImage, image.ZP, &circle{120, image.Point{120, 120}}, image.ZP, draw.Over)
 
+	editOneImage(sp, ep, i)
 }
 
-func editOneImage(sp image.Point, ep image.Point) {
-	// lock this function so only one goroutine can access it at once
-	locking.Lock()
+func editOneImage(sp image.Point, ep image.Point, i int) {
+
 	// loop through every pixel
 	for x := sp.X; x < ep.X; x++ {
 		for y := sp.Y; y < ep.Y; y++ {
-			if place == 0 {
-				background.Set(x, y, color.RGBA{255, 0, 0, 255})
-			} else if place == 1 {
-				background.Set(x, y, color.RGBA{0, 255, 0, 255})
-			} else if place == 2 {
-				background.Set(x, y, color.RGBA{0, 0, 255, 255})
-			} else if place == 3 {
-				background.Set(x, y, color.RGBA{128, 0, 128, 255})
-			}
+			original := background.At(x, y)
+			convertedColor := color.RGBAModel.Convert(original).(color.RGBA)
+			// Get red, green, and blue from this pixel, and convert to grey
+			r := float64(convertedColor.R) * (0.92126 + 0.2*float64(i))
+			g := float64(convertedColor.G) * (0.97152 + 0.2*float64(i))
+			b := float64(convertedColor.B) * (0.90722 + 0.2*float64(i))
+			grey := uint8((r + g + b) / 3)
+			c := color.RGBA{grey, grey, grey, convertedColor.A}
+			background.Set(x, y, c)
 		}
 	}
-	place++
-	locking.Unlock()
 }
 
 func main() {
-
-	// initialize channels that we'll use to pass images from goroutine to drawing
-	imageChannel := make(chan image.Image)
 
 	// Get names of images from user
 	image_names := getNames()
@@ -161,28 +148,15 @@ func main() {
 
 	// Start a timer and waitgroups for the goroutines
 	starting := time.Now()
-	var wgDraw sync.WaitGroup
-	var wgRead sync.WaitGroup
-	//var wgEdit sync.WaitGroup
 
 	for i := 0; i < len(image_names); i++ {
 		// Calculate the coordinates this image will be printed at
 		sp, ep := getCoords(i)
 
-		// Start goroutine to read an image
-		wgRead.Add(1)
-		go readImage(image_names[i], imageChannel, i, &wgRead)
+		image := readImage(image_names[i], i)
 
-		// retrieve an image from the channel, pass it to a draw goroutine
-		image := <-imageChannel
-		wgDraw.Add(1)
-		go drawOneImage(sp, ep, image, i, image_names[i], &wgDraw)
+		drawOneImage(sp, ep, image, i)
 	}
-
-	// wait for all the images to be read and printed
-	wgRead.Wait()
-	wgDraw.Wait()
-	//wgEdit.Wait()
 
 	// output the image into output.png file
 	out, err := os.Create("output.png")
