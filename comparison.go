@@ -17,7 +17,6 @@ import (
 	"image/png"
 	"os"
 	"strings"
-	"time"
 )
 
 type circle struct {
@@ -113,29 +112,31 @@ func readImage(file_name string, i int) image.Image {
 func drawOneImage(sp image.Point, ep image.Point, theImage image.Image, i int) {
 
 	fmt.Println("Starting to draw image: ", i)
-
+	// First, edit this image's background (change the color)
+	editOneImage(sp, ep, i)
 	// Draw the cropped image on the background
 	draw.DrawMask(background, image.Rectangle{sp, ep}, theImage, image.ZP, &circle{120, image.Point{120, 120}}, image.ZP, draw.Over)
 
-	editOneImage(sp, ep, i)
 }
 
 func editOneImage(sp image.Point, ep image.Point, i int) {
-
-	// loop through every pixel
+	// loop through every pixel for this image's part of the background
+	// change the color based off which place this image is
 	for x := sp.X; x < ep.X; x++ {
 		for y := sp.Y; y < ep.Y; y++ {
-			original := background.At(x, y)
-			convertedColor := color.RGBAModel.Convert(original).(color.RGBA)
-			// Get red, green, and blue from this pixel, and convert to grey
-			r := float64(convertedColor.R) * (0.92126 + 0.2*float64(i))
-			g := float64(convertedColor.G) * (0.97152 + 0.2*float64(i))
-			b := float64(convertedColor.B) * (0.90722 + 0.2*float64(i))
-			grey := uint8((r + g + b) / 3)
-			c := color.RGBA{grey, grey, grey, convertedColor.A}
-			background.Set(x, y, c)
+			// ex: the first image to come in will have a red background
+			if i == 0 {
+				background.Set(x, y, color.RGBA{255, 0, 0, 255})
+			} else if i == 1 {
+				background.Set(x, y, color.RGBA{0, 255, 0, 255})
+			} else if i == 2 {
+				background.Set(x, y, color.RGBA{0, 0, 255, 255})
+			} else if i == 3 {
+				background.Set(x, y, color.RGBA{128, 0, 128, 255})
+			}
 		}
 	}
+
 }
 
 func main() {
@@ -146,31 +147,26 @@ func main() {
 	// Initialize black background to draw on
 	draw.Draw(background, background.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
 
-	// Start a timer and waitgroups for the goroutines
-	starting := time.Now()
-
 	for i := 0; i < len(image_names); i++ {
 		// Calculate the coordinates this image will be printed at
 		sp, ep := getCoords(i)
-
+		//Start to reade an image
 		image := readImage(image_names[i], i)
-
+		//Start to draw an image
 		drawOneImage(sp, ep, image, i)
 	}
 
-	// output the image into output.png file
+	// creates the image output.png to export back
 	out, err := os.Create("output.png")
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
 	defer out.Close()
 
+	//encodes the image back to the .png format
 	err = png.Encode(out, background)
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
-
-	totaltime := time.Since(starting)
-	fmt.Printf("Making your collage took %s", totaltime)
 	fmt.Println()
 }
