@@ -338,22 +338,3 @@ func main() {
 	}
 	fmt.Println("Goodbye!")
 }
-
-/* Sources
-
-https://zetcode.com/golang/readfile/
-
-https://www.socketloop.com/tutorials/golang-convert-uint-value-to-string-type#:~:text=You%20have%20an%20uint%20value,the%20uint64%20value%20to%20string.
-
-https://tutorialedge.net/golang/go-linked-lists-tutorial/
-
-More list stuff:
-https://dev.to/divshekhar/golang-linked-list-data-structure-h20
-
-Ascii hangman: https://inventwithpython.com/invent4thed/chapter8.html
-
-using runes: https://www.geeksforgeeks.org/check-if-the-rune-is-a-letter-or-not-in-golang/
-https://appdividend.com/2020/03/12/golang-how-to-convert-string-to-rune-in-go-example/
-
-Hash map in Go: https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics
-*/

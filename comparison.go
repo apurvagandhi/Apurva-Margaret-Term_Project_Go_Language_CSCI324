@@ -19,6 +19,8 @@ import (
 	"strings"
 )
 
+// Implementing a circle struct and image functions on it, in order to create a circular crop
+
 type circle struct {
 	radius int
 	center image.Point
@@ -40,7 +42,7 @@ func (c *circle) At(x, y int) color.Color {
 	return color.Alpha{0}
 }
 
-// initialize vars to creat black background
+// initialize vars to create black background
 var background = image.NewRGBA(image.Rect(0, 0, 480, 480))
 var black = color.RGBA{0, 0, 0, 255}
 
@@ -54,6 +56,8 @@ func getNames() []string {
 	reader := bufio.NewReader(os.Stdin)
 	response, _ := reader.ReadString('\n')
 	image_names := strings.Split(response, " ")
+
+	// if user did not input names correctly, ask them to try again
 	for len(image_names) != 4 {
 		fmt.Println("Sorry, you have to input 4 names. Please try again.")
 		reader := bufio.NewReader(os.Stdin)
@@ -69,7 +73,7 @@ func getNames() []string {
 	return image_names
 }
 
-// Calculate the top left and bottom right of the mini-square we're pasting to
+// getCoords() calculates the top left and bottom right coordinate of the mini-square we're pasting to
 func getCoords(i int) (image.Point, image.Point) {
 	var start image.Point
 	var end image.Point
@@ -89,6 +93,7 @@ func getCoords(i int) (image.Point, image.Point) {
 	return start, end
 }
 
+// readImage() reads in one of the image files and returns it
 func readImage(file_name string, i int) image.Image {
 
 	// Input the image
@@ -106,37 +111,41 @@ func readImage(file_name string, i int) image.Image {
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
+
 	return theImage
 }
 
+// drawOneImage() takes in an image, calls edit to change the correct portion of
+// the background to a different color, and draws the image to that part of the background
 func drawOneImage(sp image.Point, ep image.Point, theImage image.Image, i int) {
-
-	fmt.Println("Starting to draw image: ", i)
 	// First, edit this image's background (change the color)
 	editOneImage(sp, ep, i)
-	// Draw the cropped image on the background
-	draw.DrawMask(background, image.Rectangle{sp, ep}, theImage, image.ZP, &circle{120, image.Point{120, 120}}, image.ZP, draw.Over)
 
+	// Draw the cropped image on the background
+	fmt.Println("Starting to draw image: ", i)
+	draw.DrawMask(background, image.Rectangle{sp, ep}, theImage, image.ZP, &circle{120, image.Point{120, 120}}, image.ZP, draw.Over)
 }
 
+// editOneImage() takes in two sets of x,y coordinates and changes the color of
+// the background in the rectangle that those coordinates specify. The color is
+// chosen based off of the index of the image in the array of image names. The
+// first image in the array gets the red color, for ex.
 func editOneImage(sp image.Point, ep image.Point, i int) {
-	// loop through every pixel for this image's part of the background
-	// change the color based off which place this image is
+	// loop through every pixel for this image's part of the background and change the color
 	for x := sp.X; x < ep.X; x++ {
 		for y := sp.Y; y < ep.Y; y++ {
 			// ex: the first image to come in will have a red background
 			if i == 0 {
-				background.Set(x, y, color.RGBA{255, 0, 0, 255})
+				background.Set(x, y, color.RGBA{255, 0, 0, 255}) // red
 			} else if i == 1 {
-				background.Set(x, y, color.RGBA{0, 255, 0, 255})
+				background.Set(x, y, color.RGBA{0, 255, 0, 255}) // green
 			} else if i == 2 {
-				background.Set(x, y, color.RGBA{0, 0, 255, 255})
+				background.Set(x, y, color.RGBA{0, 0, 255, 255}) // blue
 			} else if i == 3 {
-				background.Set(x, y, color.RGBA{128, 0, 128, 255})
+				background.Set(x, y, color.RGBA{128, 0, 128, 255}) // purple
 			}
 		}
 	}
-
 }
 
 func main() {
@@ -150,23 +159,22 @@ func main() {
 	for i := 0; i < len(image_names); i++ {
 		// Calculate the coordinates this image will be printed at
 		sp, ep := getCoords(i)
-		//Start to reade an image
+		// Read an image
 		image := readImage(image_names[i], i)
-		//Start to draw an image
+		// Draw it
 		drawOneImage(sp, ep, image, i)
 	}
 
-	// creates the image output.png to export back
+	// creates output.png file where our collage will go
 	out, err := os.Create("output.png")
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
 	defer out.Close()
 
-	//encodes the image back to the .png format
+	// encodes the collage to the .png format
 	err = png.Encode(out, background)
 	if err != nil {
 		fmt.Println("Sadly, an error has occured with this image: ", err)
 	}
-	fmt.Println()
 }
