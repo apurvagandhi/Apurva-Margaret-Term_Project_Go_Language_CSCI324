@@ -1,0 +1,41 @@
+﻿Margaret Haley and Apurva Gandhi
+PL Term Project
+April 27 2021
+Collaboration file detailing all sources used in the project.
+
+1. Bodnar, J. “Go Read File.” Go Read File - Reading Files in Golang, 2020 July 12, https://zetcode.com/golang/readfile/. Accessed 2021 March 10.
+2. “Channels.” A Tour of Go. https://tour.golang.org/concurrency/2. Accessed 2021 April 18.
+3. Cheney, D. “How the Go Runtime Implements Maps Efficiently (without Generics).” Dave.cheney, 2018 May 29, https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics. Accessed 2021 March 12.
+4. “Declarations and Scope.” Go, https://golang.org/ref/spec#Declarations_and_scope. Accessed 2021 March 21.
+5. “Defer.” Go, https://golang.org/doc/effective_go#defer. Accessed 2021 March 22.
+6. “Documentation.” Go, https://golang.org/doc/. Accessed 2021 March 20.
+7. Elliot F, “Reading in Console Input in Golang.” TutorialEdge.net, 2017 April 15, https://tutorialedge.net/golang/reading-console-input-golang/. Accessed 2021 March 12. 
+8. “Errors.” Go, https://golang.org/ref/spec#Errors. Accessed 2021 March 23.
+9. “Frequently Asked Questions (FAQ).” Go, https://golang.org/doc/faq#What_is_the_purpose_of_the_project. Accessed 2021 March 20.
+10. Gerrard, A. “go fmt your code.” The Go Blog. https://blog.golang.org/gofmt. Accessed 2021 April 23.
+11. “Go: Loading and Saving an Image.” Rip Tutorial. https://riptutorial.com/go/example/31686/loading-and-saving-image. Accessed 2021 April 18.
+12. “Goroutines.” Go, https://golang.org/doc/effective_go#goroutines. Accessed 2021 April 23.
+13. Griesemer, R. "The Evolution of Go." Talks.golang.org, 2015 July 9, https://talks.golang.org/2015/gophercon-goevolution.slide#1. Accessed 2021 April 12.
+14. Griesemer, Rob, and Rob Pike. Proposal: Alias Declarations for Go, 31 June 2016, https://go.googlesource.com/proposal/+/1487446b91599daa695905dc51a77d1bcc7086d8/design/16339-alias-decls.md. Accessed 2021 April 26.
+15. Kayyum Shaikh, B. and Borde, S. Quantitative Evaluation by Applying Metrics to Existing ‘GO’ with Other Programming Languages in International Conference on Ongoing Research in Management and IT - Volume 1. https://www.researchgate.net/publication/285581592_Quantitative_Evaluation_by_applying_metrics_to_existing_GO_with_other_programming_language. Accessed 2021 April 26.
+16. “Keywords.” Go, https://golang.org/ref/spec#Keywords. Accessed 2021 March 20.
+17. Krunal. “Golang: How To Convert String To Rune in Go Example.” AppDividend, 2020 March 12, https://appdividend.com/2020/03/12/golang-how-to-convert-string-to-rune-in-go-example/. Accessed 2021 March 13.
+18. “Map Types.” Go, https://golang.org/ref/spec#Map_types. Accessed 2021 March 24.
+19. McGranaghan, M. “Go by Example: Goroutines.” Gobyexample.com, https://gobyexample.com/goroutines. Accessed 2021 April 24.
+20. McGranaghan, M. “Go by Example: WaitGroups.” Gobyexample.com, https://gobyexample.com/waitgroups. Accessed 2021 April 24.
+21. Ng, A. “Golang : Convert Uint Value to String Type.” SOCKETLOOP, 2015 May 22, www.socketloop.com/tutorials/golang-convert-uint-value-to-string-type#:~:text=You%20have%20an%20uint%20value,the%20uint64%20value%20to%20string. Accessed 2021 March 11.
+22. “Packages.” Go, https://golang.org/pkg/. Accessed 2021 March 22.
+23. “Package Draw.” Go, https://golang.org/pkg/image/draw/. Accessed 2021 April 19.
+24. “Package Image.” Go, https://golang.org/pkg/image/. Accessed 2021 April 22. 22-28.
+25. “Pointers vs. Values” Go, https://golang.org/doc/effective_go#pointers_vs_values. Accessed 2021 March 22.
+26. Saini, A. “Check If the Rune Is a Letter or Not in Golang.” GeeksforGeeks, 2019 September 27, www.geeksforgeeks.org/check-if-the-rune-is-a-letter-or-not-in-golang/. Accessed 2021 March 12.
+27. Saini, A. “Slices in Golang.” GeeksforGeeks, 2021 January 8, https://www.geeksforgeeks.org/slices-in-golang/. Accessed 2021 April 23.
+28. Sebesta, R.W. Concepts of Programming Languages. 11th ed. (Harlow: Pearson Education Limited, 2016). 30-41.
+29. “Statements.” Go, https://golang.org/ref/spec#Statements. Accessed 2021 March 20.
+30. Sweigart, A. “Chapter 8: Writing the Hangman Code.” Invent Your Own Computer Games with Python. No Starch Press, 2017. https://inventwithpython.com/invent4thed/chapter8.html. Accessed 2021 March 12.
+31. “sync.Mutex.” A Tour of Go. https://tour.golang.org/concurrency/9. Accessed 2021 April 20.
+32. Tao, N. “The Go Blog.” Golang, 2011 September 29, https://blog.golang.org/image-draw. Accessed 2021 April 22.
+33. “The Blank Identifier.” Go, https://golang.org/doc/effective_go#blank. Accessed 2021 March 21.
+34. “Types.” Go, https://golang.org/ref/spec#Types. Accessed 2021 March 20.
+35. Van Sickle, M. Learn Go Programming - Golang Tutorial for Beginners. YouTube, 2019 June 20, www.youtube.com/watch?v=YS4e4q9oBaU. Accessed 2021 March 10. 0:00:00-1:50:00.
+36. Westrup, E. and Pettersson, F. “Using the Go Programming Language in Practice.” Axis Communications AB for the Department of Computer Science, Lund University, 2014. https://www.researchgate.net/publication/312490994_Using_the_Go_Programming_Language_in_Practice. Accessed 2021 April 24.

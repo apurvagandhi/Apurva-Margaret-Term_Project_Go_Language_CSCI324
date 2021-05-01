@@ -1,6 +1,4 @@
 Fish
 fake
-fish
 apple
 bully
-FISH

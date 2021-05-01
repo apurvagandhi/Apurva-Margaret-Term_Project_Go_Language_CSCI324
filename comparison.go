@@ -64,12 +64,17 @@ func getNames() []string {
 		response, _ := reader.ReadString('\n')
 		image_names = strings.Split(response, " ")
 	}
+
+	/***********************************
+	CHANGE: we had forgotten to add the
+	slicing to the comparison program
+	that we had in the collage program.
+	Here we have added it.
+	***********************************/
 	// Remove the extra carriage return from the last element of the array
 	changeName := image_names[len(image_names)-1]
-	image_names[len(image_names)-1] = ""
-	for i := 0; i < len(changeName)-1; i++ {
-		image_names[len(image_names)-1] += string(changeName[i])
-	}
+	image_names[len(image_names)-1] = changeName[0:(len(changeName) - 1)]
+
 	return image_names
 }
 

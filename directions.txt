@@ -1,0 +1,48 @@
+﻿Margaret Haley and Apurva Gandhi
+PL Term Project
+April 27 2021
+Directions file describing how to run the programs
+
+
+* Go is available on radius
+
+
+To compile and run the hangman.go program.
+        King'sMac% go run hangman.go 
+        Upon running, the program will prompt to play the game, add words, or quit the game. 
+        There needs to be a dictionary.txt file stored in the same directory as the program hangman.go file. 
+Expect the following output.
+        Do you want to play a game (P), add a word to the dictionary (A), or quit (Q)?:
+
+
+To compile and run the comparision.go program.
+        radius% go run comparison.go
+        Upon running, the program will prompt to enter 4 .png image files. 
+        These files need to be stored in the same directory as the program collage.go file. You must enter them separated by space.
+Expect the following output.
+        Please enter the names of fours images separated by a space (png only).
+        For example: image1.png image2.png image3.png image4.png
+        The collage can be found in the same directory as the program, in the file named “output.png”
+
+
+To compile and run the collage.go program.
+        radius% go run collage.go 
+        Upon running, the program will prompt to enter 4 .png image files. 
+        These files need to be stored in the same directory as the program collage.go file. You must enter them separated by space. 
+Expect the following output.
+        Please enter the names of fours images separated by a space (png only).
+        For example: image1.png image2.png image3.png image4.png
+        The collage can be found in the same directory as the program, in the file named “output.png”
+
+/***********************************
+CHANGE: we had not submitted our
+extra.go toy program originally, but
+now we have included it to illustrate
+an interesting feature.
+************************************/
+To compile and run the extra.go program.
+        radius% go run extra.go
+        Upon running, the program will prompt you to enter two integers separated by a space.
+Expect the following output.
+        What numbers would you like us to perform our special computation on?
+        Please enter the numbers separated by a space (Ex. 2 5)

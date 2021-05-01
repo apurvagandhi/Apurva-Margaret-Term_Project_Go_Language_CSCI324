@@ -2,54 +2,40 @@
 Names: Apurva Gandhi and Margaret Haley
 Course: CSCI324
 Professor King
-Extra Program to illustrate slicing and
-adding methods to primitive types
+Extra Program to illustrate Go's ability to
+add methods to primitive types
 Sample execution: go run extra.go
 *****************************************/
 
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 )
 
-type newInt int
+// Declares new Int type
+type Int int
 
-func (i newInt) specialComputation(j newInt) newInt {
-	return i * j / 10
+// Adds method to that type
+func (i Int) specialComputation(j Int) Int {
+	return i*j + 10
 }
 
 func main() {
+	var firstNumber int
+	var secondNumber int
 
-// an array of numbers from 1 to 10
-		counting := []int{1, 2, 3, 4, 5, 67, 8, 9, 10}
- 
-// Asks user for a number
-		fmt.Println("Pick a numb: ")
-	reader := bufio.NewReader(os.din)
-	userResponse, _ := reader.ReadString('\n')
-	number := Atoi(userResponse)
+	// Ask user for numbers
+	fmt.Println("What numbers would you like us to perform our special computation on?")
+	fmt.Println("Please enter the numbers separated by a space (Ex. 2 5): ")
+	fmt.Scanf("%d %d", &firstNumber, &secondNumber)
 
-// Ask for range
-		fmt.Print("You st select a range from 1 to 10. Pick the low bound: ")
-	reader = bufio.NewReader(os.Stdin)
-	userResponse, _ = reader.ReadString'\n')
-	low := Atoi(userResponse)
+	// Convert to Int type
+	i := Int(firstNumber)
+	j := Int(secondNumber)
 
-fmt.Print("Pick the high bound: ")
-		reader = bufio.NewReader(os.Stdin
-	userResponse, _ = reader.ReadStrin'\n')
-	high := Atoi(userResponse)
-
-//  Slice the array from the desired bounds
-		sliceNumbers := counting[low:high]
-	for i := 0; i < len(sliceNumbers);++ {
-		sliceNumbers[i] = number.specialC ompution(sliceNumbers[i])
-	}
-	ft.Println("Our special computation gives: ", sliceNumbers)
-	fmt.Println("Our special computation multiplied the numbers y ", number, ", then divided by 10.")
-
-
+	// Print result of the special computation on the user's numbers
+	fmt.Print("The result of our computation is: ")
+	fmt.Println(i.specialComputation(j))
+	fmt.Println("We multiplied your two numbers together, then added 10.")
 }
